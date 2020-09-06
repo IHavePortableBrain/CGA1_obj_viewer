@@ -47,6 +47,7 @@
     <Compile Include="Types\Face.cs" />
     <Compile Include="Types\IType.cs" />
     <Compile Include="Types\Material.cs" />
+    <Compile Include="Types\VertexNormal.cs" />
     <Compile Include="Types\VertexTexture.cs" />
     <Compile Include="Types\Vertex.cs" />
   </ItemGroup>

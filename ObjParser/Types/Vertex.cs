@@ -13,33 +13,37 @@ namespace ObjParser.Types
         public const string Prefix = "v";
 
         public double X { get; set; }
-
         public double Y { get; set; }
-
         public double Z { get; set; }
+        public double? W { get; set; } = 1.0;
 
         public int Index { get; set; }
 
-		public void LoadFromStringArray(string[] data)
+		public void LoadFrom(string[] data)
         {
             if (data.Length < MinimumDataLength)
-                throw new ArgumentException("Input array must be of minimum length " + MinimumDataLength, "data");
+                throw new ArgumentException("Input array must be of minimum length " + MinimumDataLength, nameof(data));
 
             if (!data[0].ToLower().Equals(Prefix))
-                throw new ArgumentException("Data prefix must be '" + Prefix + "'", "data");
+                throw new ArgumentException("Data prefix must be '" + Prefix + "'", nameof(data));
 
             bool success;
 
-            double x, y, z;
-
-            success = double.TryParse(data[1], NumberStyles.Any, CultureInfo.InvariantCulture, out x);
+            success = double.TryParse(data[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double x);
             if (!success) throw new ArgumentException("Could not parse X parameter as double");
 
-            success = double.TryParse(data[2], NumberStyles.Any, CultureInfo.InvariantCulture, out y);
+            success = double.TryParse(data[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double y);
             if (!success) throw new ArgumentException("Could not parse Y parameter as double");
 
-            success = double.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out z);
+            success = double.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out double z);
             if (!success) throw new ArgumentException("Could not parse Z parameter as double");
+
+            if (data.Length > MinimumDataLength)
+            {
+                success = double.TryParse(data[4], NumberStyles.Any, CultureInfo.InvariantCulture, out double w);
+                if (!success) throw new ArgumentException("Could not parse W parameter as double");
+                W = w;
+            }
 
             X = x;
             Y = y;
@@ -48,7 +52,7 @@ namespace ObjParser.Types
 
         public override string ToString()
         {
-            return string.Format("v {0} {1} {2}", X, Y, Z);
+            return $"{Prefix} {X} {Y} {Z}" + (W.HasValue ? $" {W}" : string.Empty);
         }
     }
 }

@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ObjParser.Types
 {
-    public class VertexTexture : IType
+    public class VertexNormal : IType
     {
         public const int MinimumDataLength = 3;
-        public const string Prefix = "vt";
+        public const string Prefix = "vn";
 
         public double X { get; set; }
         public double Y { get; set; }
-        public double? W { get; set; } = 0;
+        public double Z { get; set; }
 
         public int Index { get; set; }
 
@@ -35,20 +30,17 @@ namespace ObjParser.Types
             success = double.TryParse(data[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double y);
             if (!success) throw new ArgumentException("Could not parse Y parameter as double");
 
-            if (data.Length > MinimumDataLength)
-            {
-                success = double.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out double w);
-                if (!success) throw new ArgumentException("Could not parse W parameter as double");
-                W = w;
-            }
+            success = double.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out double z);
+            if (!success) throw new ArgumentException("Could not parse Z parameter as double");
 
             X = x;
             Y = y;
+            Z = z;
         }
 
         public override string ToString()
         {
-            return $"{Prefix} {X} {Y}" + (W.HasValue ? $" {W}" : string.Empty);
+            return $"{Prefix} {X} {Y} {Z}";
         }
     }
 }

@@ -14,37 +14,47 @@ namespace ObjParser.Types
         public const string Prefix = "f";
 
         public string UseMtl { get; set; }
-        public int[] VertexIndexList { get; set; }
-        public int[] TextureVertexIndexList { get; set; }
+        public int[] VertexIndicies { get; set; }
+        public int?[] TextureIndicies { get; set; }
+        public int?[] NormalIndicies { get; set; }
 
-        public void LoadFromStringArray(string[] data)
+        public void LoadFrom(string[] data)
         {
             if (data.Length < MinimumDataLength)
-                throw new ArgumentException("Input array must be of minimum length " + MinimumDataLength, "data");
+                throw new ArgumentException("Input array must be of minimum length " + MinimumDataLength, nameof(data));
 
             if (!data[0].ToLower().Equals(Prefix))
-                throw new ArgumentException("Data prefix must be '" + Prefix + "'", "data");            
+                throw new ArgumentException("Data prefix must be '" + Prefix + "'", nameof(data));            
 
-            int vcount = data.Count() - 1;
-            VertexIndexList = new int[vcount];
-            TextureVertexIndexList = new int[vcount];
+            int vertexCount = data.Count() - 1;
+            VertexIndicies = new int[vertexCount];
+            TextureIndicies = new int?[vertexCount];
+            NormalIndicies = new int?[vertexCount];
 
-			bool success;
+            bool success;
 
-            for (int i = 0; i < vcount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 string[] parts = data[i + 1].Split('/');
 
-                int vindex;
-                success = int.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out vindex);
+                success = int.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out int vertexIndex);
                 if (!success) throw new ArgumentException("Could not parse parameter as int");
-                VertexIndexList[i] = vindex;
+                VertexIndicies[i] = vertexIndex;
 
                 if (parts.Count() > 1)
                 {
-                    success = int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out vindex);
+                    success = int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out vertexIndex);
                     if (success) {
-                        TextureVertexIndexList[i] = vindex;
+                        TextureIndicies[i] = vertexIndex;
+                    }
+
+                    if (parts.Count() > 2)
+                    {
+                        success = int.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out vertexIndex);
+                        if (success)
+                        {
+                            NormalIndicies[i] = vertexIndex;
+                        }
                     }
                 }
             }
@@ -55,18 +65,14 @@ namespace ObjParser.Types
         public override string ToString()
         {
             StringBuilder b = new StringBuilder();
-            b.Append("f");
+            b.Append(Prefix);
 
-            for (int i = 0; i < VertexIndexList.Count(); i++)
+            for (int i = 0; i < VertexIndicies.Count(); i++)
             {
-                if (i < TextureVertexIndexList.Length)
-                {
-                    b.AppendFormat(" {0}/{1}", VertexIndexList[i], TextureVertexIndexList[i]);
-                }
-                else
-                {
-                    b.AppendFormat(" {0}", VertexIndexList[i]);
-                }
+                var texture = TextureIndicies[i];
+                var normal = NormalIndicies[i];
+                var append = texture.HasValue || normal.HasValue ? $"/{texture}/{normal}" : string.Empty;
+                b.Append($" {VertexIndicies[i]}{append}");
             }
 
             return b.ToString();

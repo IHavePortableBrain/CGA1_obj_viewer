@@ -9,6 +9,6 @@ namespace ObjParser.Types
 {
     interface IType
     {
-        void LoadFromStringArray(string[] data);
+        void LoadFrom(string[] data);
     }
 }
