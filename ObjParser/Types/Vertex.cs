@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ObjParser.Types
 {
@@ -12,10 +9,7 @@ namespace ObjParser.Types
         public const int MinimumDataLength = 4;
         public const string Prefix = "v";
 
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public double? W { get; set; } = 1.0;
+        public Vector4 Vector { get; set; }
 
         public int Index { get; set; }
 
@@ -29,30 +23,27 @@ namespace ObjParser.Types
 
             bool success;
 
-            success = double.TryParse(data[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double x);
+            success = float.TryParse(data[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float x);
             if (!success) throw new ArgumentException("Could not parse X parameter as double");
 
-            success = double.TryParse(data[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double y);
+            success = float.TryParse(data[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float y);
             if (!success) throw new ArgumentException("Could not parse Y parameter as double");
 
-            success = double.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out double z);
+            success = float.TryParse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture, out float z);
             if (!success) throw new ArgumentException("Could not parse Z parameter as double");
 
+            float w = 1;
             if (data.Length > MinimumDataLength)
             {
-                success = double.TryParse(data[4], NumberStyles.Any, CultureInfo.InvariantCulture, out double w);
+                success = float.TryParse(data[4], NumberStyles.Any, CultureInfo.InvariantCulture, out w);
                 if (!success) throw new ArgumentException("Could not parse W parameter as double");
-                W = w;
             }
-
-            X = x;
-            Y = y;
-            Z = z;
+            Vector = new Vector4(x, y, z, w);
         }
 
         public override string ToString()
         {
-            return $"{Prefix} {X} {Y} {Z}" + (W.HasValue ? $" {W}" : string.Empty);
+            return $"{Prefix} {Vector.X} {Vector.Y} {Vector.Z} {Vector.W}";
         }
     }
 }

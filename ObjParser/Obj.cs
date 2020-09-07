@@ -8,10 +8,10 @@ namespace ObjParser
 {
 	public class Obj
 	{
-		public List<Vertex> VertexList = new List<Vertex>();
-		public List<VertexTexture> TextureList = new List<VertexTexture>();
-		public List<VertexNormal> NormalList = new List<VertexNormal>();
-		public List<Face> FaceList = new List<Face>();
+		public List<Vertex> Verticies = new List<Vertex>();
+		public List<VertexTexture> Textures = new List<VertexTexture>();
+		public List<VertexNormal> Normals = new List<VertexNormal>();
+		public List<Face> Faces = new List<Face>();
 
 		public Extent Size { get; set; }
 
@@ -44,7 +44,7 @@ namespace ObjParser
 		private void UpdateSize()
 		{
             // If there are no vertices then size should be 0.
-	        if (VertexList.Count == 0)
+	        if (Verticies.Count == 0)
 	        {
 	            Size = new Extent
 	            {
@@ -62,12 +62,12 @@ namespace ObjParser
 
 			Size = new Extent
 			{
-				XMax = VertexList.Max(v => v.X),
-				XMin = VertexList.Min(v => v.X),
-				YMax = VertexList.Max(v => v.Y),
-				YMin = VertexList.Min(v => v.Y),
-				ZMax = VertexList.Max(v => v.Z),
-				ZMin = VertexList.Min(v => v.Z)
+				XMax = Verticies.Max(v => v.Vector.X),
+				XMin = Verticies.Min(v => v.Vector.X),
+				YMax = Verticies.Max(v => v.Vector.Y),
+				YMin = Verticies.Min(v => v.Vector.Y),
+				ZMax = Verticies.Max(v => v.Vector.Z),
+				ZMin = Verticies.Min(v => v.Vector.Z)
 			};		
 		}
 	
@@ -88,26 +88,26 @@ namespace ObjParser
 					case Vertex.Prefix:
 						Vertex v = new Vertex();
 						v.LoadFrom(parts);
-						VertexList.Add(v);
-						v.Index = VertexList.Count();
+						Verticies.Add(v);
+						v.Index = Verticies.Count();
 						break;
 					case Face.Prefix:
 						Face f = new Face();
 						f.LoadFrom(parts);
 						f.UseMtl = UseMtl;
-						FaceList.Add(f);
+						Faces.Add(f);
 						break;
 					case VertexTexture.Prefix:
 						VertexTexture vt = new VertexTexture();
 						vt.LoadFrom(parts);
-						TextureList.Add(vt);
-						vt.Index = TextureList.Count();
+						Textures.Add(vt);
+						vt.Index = Textures.Count();
 						break;
 					case VertexNormal.Prefix:
 						VertexNormal vn = new VertexNormal();
 						vn.LoadFrom(parts);
-						NormalList.Add(vn);
-						vn.Index = NormalList.Count();
+						Normals.Add(vn);
+						vn.Index = Normals.Count();
 						break;
 				}
 			}
@@ -128,10 +128,10 @@ namespace ObjParser
 					writer.WriteLine("mtllib " + Mtl);
 				}
 
-				VertexList.ForEach(v => writer.WriteLine(v));
-				TextureList.ForEach(tv => writer.WriteLine(tv));
+				Verticies.ForEach(v => writer.WriteLine(v));
+				Textures.ForEach(tv => writer.WriteLine(tv));
 				string lastUseMtl = "";
-				foreach (Face face in FaceList)
+				foreach (Face face in Faces)
 				{
 					if (face.UseMtl != null && !face.UseMtl.Equals(lastUseMtl))
 					{
