@@ -1,4 +1,5 @@
 ﻿using lab1.View._3D;
+using lab1.World;
 using ObjParser;
 using System;
 using System.Data;
@@ -12,23 +13,28 @@ namespace lab1
 {
     public partial class Form1 : Form
     {
-        private Obj _obj;
+        public const float ScaleSpeed = 10f;
+        public const float RotationSpeed = 0.3f;
+        private bool _isRotating = false;
+        private float _lastX;
+        private float _lastY;
+
+        private Obj _obj = new Obj();
+        private Model _model;
         private View3d _view3d;
         private Viewport _viewport;
-        private Vector4[] _vectors;
-        private Bitmap _initImage;
-        private Pen _pen = new Pen(Color.Black);
 
         public Form1()
         {
             InitializeComponent();
+            pbViewport.MouseWheel += PbViewport_MouseWheel; 
+            _model = new Model(_obj);
             _viewport = new Viewport()
             {
                 Width = pbViewport.Width,
                 Height = pbViewport.Height,
             };
-            _initImage = new Bitmap(pbViewport.Width, pbViewport.Height);
-            pbViewport.Image = _initImage;
+            _view3d = new View3d(_model, _viewport);
         }
 
         private async void btnLoadObj_Click(object sender, EventArgs e)
@@ -37,14 +43,8 @@ namespace lab1
             {
                 try
                 {
-                    _obj = new Obj();
                     _obj.LoadObj(dlgOpenObjFile.FileName);
-                    _vectors = _obj.Verticies.Select(v => v.Vector).ToArray();
-                    _view3d = new View3d(_viewport)
-                    {
-                        ModelTransform = Matrix4x4.CreateTranslation(0, 0, 1)
-                    };
-                    _view3d.Recalculate(_vectors);
+                    _model.Reload();
                     RedrawViewport();
                 }
                 catch (SecurityException ex)
@@ -54,36 +54,55 @@ namespace lab1
                 }
             }
         }
-
+        
         private void RedrawViewport()
         {
-            using (var currentImage = new Bitmap(_initImage))
-            using (var graphics = Graphics.FromImage(currentImage))
+            pbViewport.Image = _view3d.Redraw();
+            pbViewport.Refresh();
+        }
+
+        #region ui
+
+        private void PbViewport_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (_obj != null)
             {
-                foreach (var face in _obj.Faces)
-                {
-                    for (int i = 0; i < face.VertexIndicies.Length - 1; i++)
-                    {
-                        var startVertexIndex = face.VertexIndicies[i] - 1; // array starts from 0, obj index starts from 1
-                        var endVertexIndex = face.VertexIndicies[i + 1] - 1;
-                        var startVector = _vectors[startVertexIndex]; // bad - relying on _view3d.Recalculate and .Select(v => v.Vector).ToArray() do not change order 
-                        var endVector = _vectors[endVertexIndex];
-
-                        //currentImage.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                        try
-                        {
-                            graphics.DrawLine(_pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    }
-                }
-
-                //_graphics.DrawImageUnscaled()
-                pbViewport.Image = currentImage;
-                pbViewport.Refresh();
+                _model.Scale += e.Delta * ScaleSpeed;
+                _model.Update();
+                RedrawViewport();
             }
         }
+
+        private void pbViewport_DoubleClick(object sender, EventArgs e)
+        {
+            _isRotating = true;
+            if (e is MouseEventArgs me)
+            {
+                _lastX = me.X;
+                _lastY = me.Y;
+            }
+        }
+
+        private void pbViewport_DragOver(object sender, DragEventArgs e)
+        {
+            _isRotating = false;
+        }
+
+        private void pbViewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isRotating)
+            {
+                var q = _model.Quaternion;
+                q.X = ((q.X + (e.X - _lastX) * RotationSpeed)) % (float)(2 * Math.PI);
+                q.Y = ((q.Y + (e.Y - _lastY) * RotationSpeed)) % (float)(2 * Math.PI);
+                _model.Quaternion = q;
+                _lastX = e.X;
+                _lastY = e.Y;
+                _model.Update();
+                RedrawViewport();
+            }
+        }
+
+        #endregion
     }
 }

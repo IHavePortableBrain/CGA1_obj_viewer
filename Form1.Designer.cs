@@ -55,6 +55,9 @@
             this.pbViewport.Size = new System.Drawing.Size(1820, 1080);
             this.pbViewport.TabIndex = 1;
             this.pbViewport.TabStop = false;
+            this.pbViewport.DragOver += new System.Windows.Forms.DragEventHandler(this.pbViewport_DragOver);
+            this.pbViewport.DoubleClick += new System.EventHandler(this.pbViewport_DoubleClick);
+            this.pbViewport.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseMove);
             // 
             // Form1
             // 

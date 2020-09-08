@@ -89,6 +89,10 @@
       <Project>{B05AB695-E57D-4A84-ADAA-1B9FB6139B23}</Project>
       <Name>lab1.View.3D</Name>
     </ProjectReference>
+    <ProjectReference Include="..\lab1.World\lab1.World.csproj">
+      <Project>{0433cdea-e9f1-4cd2-b9ba-57b46ade0cb2}</Project>
+      <Name>lab1.World</Name>
+    </ProjectReference>
     <ProjectReference Include="ObjParser\ObjParser.csproj">
       <Project>{04AA9B94-B460-4E73-BAF0-0154494BFE82}</Project>
       <Name>ObjParser</Name>
