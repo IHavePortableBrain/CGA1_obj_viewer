@@ -13,22 +13,28 @@ namespace lab1
 {
     public partial class Form1 : Form
     {
-        public const float ScaleSpeed = 10f;
-        public const float RotationSpeed = 0.3f;
+        public const float ScaleSpeed = 0.01f;
+        public const float MinScale = 0.1f;
+        public const float MaxScale = 10f;
+        public const float RotationSpeed = 15 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
         private bool _isRotating = false;
         private float _lastX;
         private float _lastY;
 
-        private Obj _obj = new Obj();
-        private Model _model;
-        private View3d _view3d;
-        private Viewport _viewport;
+        private readonly Obj _obj = new Obj();
+        private readonly Model _model;
+        private readonly View3d _view3d;
+        private readonly Viewport _viewport;
 
         public Form1()
         {
             InitializeComponent();
-            pbViewport.MouseWheel += PbViewport_MouseWheel; 
-            _model = new Model(_obj);
+            pbViewport.MouseWheel += PbViewport_MouseWheel;
+            pbViewport.LostFocus += PbViewport_LostFocus;
+            _model = new Model(_obj)
+            {
+                MoveTranslation = Matrix4x4.CreateTranslation(0, 0, 1),
+            };
             _viewport = new Viewport()
             {
                 Width = pbViewport.Width,
@@ -65,42 +71,65 @@ namespace lab1
 
         private void PbViewport_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (_obj != null)
-            {
-                _model.Scale += e.Delta * ScaleSpeed;
-                _model.Update();
-                RedrawViewport();
-            }
+            _model.Scale = 1 + e.Delta * ScaleSpeed;
+            _model.Scale = _model.Scale > MaxScale ? MaxScale : _model.Scale;
+            _model.Scale = _model.Scale < MinScale ? MinScale : _model.Scale;
+            _model.Update();
+            RedrawViewport();
         }
 
-        private void pbViewport_DoubleClick(object sender, EventArgs e)
+        private void pbViewport_MouseDown(object sender, MouseEventArgs e)
         {
-            _isRotating = true;
+            Console.WriteLine($"Start rotating {_isRotating}");
             if (e is MouseEventArgs me)
             {
+                _isRotating = true;
                 _lastX = me.X;
                 _lastY = me.Y;
             }
         }
 
-        private void pbViewport_DragOver(object sender, DragEventArgs e)
+        private void pbViewport_MouseUp(object sender, MouseEventArgs e)
         {
-            _isRotating = false;
+            if (_isRotating)
+            {
+                Console.WriteLine($"End rotating {_isRotating}");
+                _isRotating = false;
+            }
+        }
+
+        private void pbViewport_MouseHover(object sender, EventArgs e)
+        {
+            Console.WriteLine($"Focus");
+            pbViewport.Focus();
         }
 
         private void pbViewport_MouseMove(object sender, MouseEventArgs e)
         {
             if (_isRotating)
             {
-                var q = _model.Quaternion;
-                q.X = ((q.X + (e.X - _lastX) * RotationSpeed)) % (float)(2 * Math.PI);
-                q.Y = ((q.Y + (e.Y - _lastY) * RotationSpeed)) % (float)(2 * Math.PI);
-                _model.Quaternion = q;
-                _lastX = e.X;
-                _lastY = e.Y;
-                _model.Update();
-                RedrawViewport();
+                //var q = _model.Quaternion;
+                //q.X = (q.X + (e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
+                //q.Y = (q.Y + (e.Y - _lastY) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
+                //// Console.WriteLine($"X quaternation: {q.X}, Y: {q.Y}");
+                //_model.Quaternion = q;
+                //_lastX = e.X;
+                //_lastY = e.Y;
+                //_model.Update();
+                //RedrawViewport();
             }
+        }
+
+        private void PbViewport_LostFocus(object sender, EventArgs e)
+        {
+            Console.WriteLine("Lost focus");
+            _isRotating = false;
+        }
+
+        private void pbViewport_MouseLeave(object sender, EventArgs e)
+        {
+            Console.WriteLine("Mouse leave");
+            _isRotating = false;
         }
 
         #endregion

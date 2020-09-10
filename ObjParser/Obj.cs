@@ -18,9 +18,18 @@ namespace ObjParser
 		public string UseMtl { get; set; }
 		public string Mtl { get; set; }
 
+		public void Clear()
+        {
+			Verticies.Clear();
+			Textures.Clear();
+			Normals.Clear();
+			Faces.Clear();
+        }
+
         public void LoadObj(string path)
         {
-            LoadObj(File.ReadAllLines(path));
+			Clear();
+			LoadObj(File.ReadAllLines(path));
         }
 
 	    public void LoadObj(Stream data)

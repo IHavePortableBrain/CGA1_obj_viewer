@@ -55,9 +55,11 @@
             this.pbViewport.Size = new System.Drawing.Size(1820, 1080);
             this.pbViewport.TabIndex = 1;
             this.pbViewport.TabStop = false;
-            this.pbViewport.DragOver += new System.Windows.Forms.DragEventHandler(this.pbViewport_DragOver);
-            this.pbViewport.DoubleClick += new System.EventHandler(this.pbViewport_DoubleClick);
+            this.pbViewport.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseDown);
+            this.pbViewport.MouseLeave += new System.EventHandler(this.pbViewport_MouseLeave);
+            this.pbViewport.MouseHover += new System.EventHandler(this.pbViewport_MouseHover);
             this.pbViewport.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseMove);
+            this.pbViewport.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseUp);
             // 
             // Form1
             // 
