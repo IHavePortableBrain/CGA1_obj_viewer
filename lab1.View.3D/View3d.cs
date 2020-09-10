@@ -42,6 +42,20 @@ namespace lab1.View._3D
                     0, 0, 1, 0,
                     0, 0, 0, 1));
 
+        private Vector4? TransformToWorld(Vector4 v)
+        {
+            if (!Matrix4x4.Invert(ToViewportSpaceTransform, out var invert)
+                || !Matrix4x4.Invert(ToProjectionSpaceTransform, out invert))
+                return default;
+            v = Vector4.Divide(v, v.W);
+            v = Vector4.Transform(v, invert);
+            if (!Matrix4x4.Invert(ToObserverSpaceTransform, out invert))
+                return default;
+            v = Vector4.Transform(v, invert);
+            return v;
+        }
+            
+
         public View3d(Model model, Viewport viewport)
         {
             _model = model;
@@ -63,11 +77,15 @@ namespace lab1.View._3D
                         var endVertexIndex = face.VertexIndicies[i + 1] - 1;
                         var startVector = vectors[startVertexIndex];
                         var endVector = vectors[endVertexIndex];
+                        if (startVector.Z < 0 && endVector.Z < 0)
+                        {
+                            continue;
+                        }
 
                         try
                         {
-                            //_image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                            graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                            _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                            //graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
                         }
                         catch (Exception)
                         {
@@ -94,6 +112,22 @@ namespace lab1.View._3D
                 vectors[i] = Vector4.Transform(vectors[i], toViewport);
             }
             return vectors;
+        }
+
+        public void UpdateCameraTarget(int x, int y)
+        {
+            //var toWorld = ToWorldTransform;
+            //if (toWorld.HasValue)
+            //{
+            var viewPortTarget = new Vector4(x, y, Cam.Eye.Z, 1);
+            var target = TransformToWorld(viewPortTarget); //Vector4.Transform(viewPortTarget, toWorld.Value);
+            if (target.HasValue)
+            {
+                var v = target.Value;
+                Cam.Target = new Vector3(v.X, v.Y, v.Z);
+            }
+
+            //}
         }
     }
 }

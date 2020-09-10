@@ -15,6 +15,7 @@ namespace lab1
         public const float MaxScale = 10f;
         public const float RotationSpeed = 15 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
         private bool _isRotating = false;
+        private bool _isChangingTarget = true;
         private float _lastX;
         private float _lastY;
 
@@ -62,6 +63,14 @@ namespace lab1
                     break;
                 case Keys.S:
                     _view3d.Cam.MoveBackward();
+                    RedrawViewport();
+                    break;
+                case Keys.A:
+                    _view3d.Cam.MoveLeft();
+                    RedrawViewport();
+                    break;
+                case Keys.D:
+                    _view3d.Cam.MoveRight();
                     RedrawViewport();
                     break;
             }
@@ -114,6 +123,11 @@ namespace lab1
                 _lastY = e.Y;
                 _model.Update();
                 RedrawViewport();
+            }
+            if (_isChangingTarget)
+            {
+                //_view3d.UpdateCameraTarget(e.X, e.Y);
+                //RedrawViewport();
             }
         }
 
