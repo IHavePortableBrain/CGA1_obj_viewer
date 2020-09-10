@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1", "lab1.csproj", "{5A3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjParser", "ObjParser\ObjParser.csproj", "{04AA9B94-B460-4E73-BAF0-0154494BFE82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.View.3D", "..\lab1.View.3D\lab1.View.3D.csproj", "{B05AB695-E57D-4A84-ADAA-1B9FB6139B23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.View.3D", "lab1.View.3D\lab1.View.3D.csproj", "{B05AB695-E57D-4A84-ADAA-1B9FB6139B23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.World", "..\lab1.World\lab1.World.csproj", "{0433CDEA-E9F1-4CD2-B9BA-57B46ADE0CB2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.World", "lab1.World\lab1.World.csproj", "{0433CDEA-E9F1-4CD2-B9BA-57B46ADE0CB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

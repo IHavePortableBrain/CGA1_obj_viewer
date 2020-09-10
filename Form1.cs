@@ -2,9 +2,6 @@
 using lab1.World;
 using ObjParser;
 using System;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Numerics;
 using System.Security;
 using System.Windows.Forms;
@@ -13,7 +10,7 @@ namespace lab1
 {
     public partial class Form1 : Form
     {
-        public const float ScaleSpeed = 0.01f;
+        public const float ScaleSpeed = 0.7f;
         public const float MinScale = 0.1f;
         public const float MaxScale = 10f;
         public const float RotationSpeed = 15 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
@@ -31,9 +28,14 @@ namespace lab1
             InitializeComponent();
             pbViewport.MouseWheel += PbViewport_MouseWheel;
             pbViewport.LostFocus += PbViewport_LostFocus;
+            pbViewport.PreviewKeyDown += PbViewport_PreviewKeyDown;
+            var q = new Quaternion(0, (float)Math.PI / 12, 0, 1);
+            var test = Matrix4x4.CreateFromQuaternion(q);
             _model = new Model(_obj)
             {
-                MoveTranslation = Matrix4x4.CreateTranslation(0, 0, 1),
+                MoveTranslation = Matrix4x4.Multiply(
+                    test,
+                    Matrix4x4.CreateTranslation(0, 0, 7)), //(float)Math.PI/4
             };
             _viewport = new Viewport()
             {
@@ -50,6 +52,21 @@ namespace lab1
         }
 
         #region ui
+        private void PbViewport_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    _view3d.Cam.MoveForward();
+                    RedrawViewport();
+                    break;
+                case Keys.S:
+                    _view3d.Cam.MoveBackward();
+                    RedrawViewport();
+                    break;
+            }
+        }
+
         private void PbViewport_MouseWheel(object sender, MouseEventArgs e)
         {
             _model.Scale = 1 + e.Delta * ScaleSpeed;
@@ -89,15 +106,14 @@ namespace lab1
         {
             if (_isRotating)
             {
-                //var q = _model.Quaternion;
-                //q.X = (q.X + (e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
-                //q.Y = (q.Y + (e.Y - _lastY) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
-                //// Console.WriteLine($"X quaternation: {q.X}, Y: {q.Y}");
-                //_model.Quaternion = q;
-                //_lastX = e.X;
-                //_lastY = e.Y;
-                //_model.Update();
-                //RedrawViewport();
+                var q = _model.Quaternion;
+                q.X = (q.X + (e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
+                q.Y = (q.Y + (e.Y - _lastY) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
+                _model.Quaternion = q;
+                _lastX = e.X;
+                _lastY = e.Y;
+                _model.Update();
+                RedrawViewport();
             }
         }
 
@@ -115,7 +131,7 @@ namespace lab1
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.L && dlgOpenObjFile.ShowDialog() == DialogResult.OK)
+            if (e.Control && e.KeyCode == Keys.O && dlgOpenObjFile.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
