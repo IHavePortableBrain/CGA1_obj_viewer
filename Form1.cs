@@ -43,24 +43,6 @@ namespace lab1
             _view3d = new View3d(_model, _viewport);
         }
 
-        private async void btnLoadObj_Click(object sender, EventArgs e)
-        {
-            if (dlgOpenObjFile.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    _obj.LoadObj(dlgOpenObjFile.FileName);
-                    _model.Reload();
-                    RedrawViewport();
-                }
-                catch (SecurityException ex)
-                {
-                    MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
-                    $"Details:\n\n{ex.StackTrace}");
-                }
-            }
-        }
-        
         private void RedrawViewport()
         {
             pbViewport.Image = _view3d.Redraw();
@@ -68,7 +50,6 @@ namespace lab1
         }
 
         #region ui
-
         private void PbViewport_MouseWheel(object sender, MouseEventArgs e)
         {
             _model.Scale = 1 + e.Delta * ScaleSpeed;
@@ -132,6 +113,23 @@ namespace lab1
             _isRotating = false;
         }
 
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.L && dlgOpenObjFile.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    _obj.LoadObj(dlgOpenObjFile.FileName);
+                    _model.Reload();
+                    RedrawViewport();
+                }
+                catch (SecurityException ex)
+                {
+                    MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
+                        $"Details:\n\n{ex.StackTrace}");
+                }
+            }
+        }
         #endregion
     }
 }

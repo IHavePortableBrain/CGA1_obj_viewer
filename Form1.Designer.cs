@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.dlgOpenObjFile = new System.Windows.Forms.OpenFileDialog();
-            this.btnLoadObj = new System.Windows.Forms.Button();
             this.pbViewport = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbViewport)).BeginInit();
             this.SuspendLayout();
@@ -38,21 +37,11 @@
             // 
             this.dlgOpenObjFile.FileName = "openFileDialog1";
             // 
-            // btnLoadObj
-            // 
-            this.btnLoadObj.Location = new System.Drawing.Point(1830, 12);
-            this.btnLoadObj.Name = "btnLoadObj";
-            this.btnLoadObj.Size = new System.Drawing.Size(75, 23);
-            this.btnLoadObj.TabIndex = 0;
-            this.btnLoadObj.Text = "Load obj";
-            this.btnLoadObj.UseVisualStyleBackColor = true;
-            this.btnLoadObj.Click += new System.EventHandler(this.btnLoadObj_Click);
-            // 
             // pbViewport
             // 
             this.pbViewport.Location = new System.Drawing.Point(0, 0);
             this.pbViewport.Name = "pbViewport";
-            this.pbViewport.Size = new System.Drawing.Size(1820, 1080);
+            this.pbViewport.Size = new System.Drawing.Size(1920, 1080);
             this.pbViewport.TabIndex = 1;
             this.pbViewport.TabStop = false;
             this.pbViewport.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseDown);
@@ -67,10 +56,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1902, 1033);
             this.Controls.Add(this.pbViewport);
-            this.Controls.Add(this.btnLoadObj);
+            this.KeyPreview = true;
             this.Name = "Form1";
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pbViewport)).EndInit();
             this.ResumeLayout(false);
 
@@ -79,7 +69,6 @@
         #endregion
 
         private System.Windows.Forms.OpenFileDialog dlgOpenObjFile;
-        private System.Windows.Forms.Button btnLoadObj;
         private System.Windows.Forms.PictureBox pbViewport;
     }
 }
