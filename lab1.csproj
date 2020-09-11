@@ -85,6 +85,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lab1.Core\lab1.Core.csproj">
+      <Project>{d8df49eb-dc49-4d61-8c4c-5764d1960aa1}</Project>
+      <Name>lab1.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="lab1.View.3D\lab1.View.3D.csproj">
       <Project>{b05ab695-e57d-4a84-adaa-1b9fb6139b23}</Project>
       <Name>lab1.View.3D</Name>

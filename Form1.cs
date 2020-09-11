@@ -13,8 +13,9 @@ namespace lab1
         public const float ScaleSpeed = 0.7f;
         public const float MinScale = 0.1f;
         public const float MaxScale = 10f;
-        public const float RotationSpeed = 15 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
+        public const float RotationSpeed = 180 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
         private bool _isRotating = false;
+        private bool _freeView;
         private bool _isChangingTarget = true;
         private float _lastX;
         private float _lastY;
@@ -36,7 +37,7 @@ namespace lab1
             {
                 MoveTranslation = Matrix4x4.Multiply(
                     test,
-                    Matrix4x4.CreateTranslation(0, 0, 7)), //(float)Math.PI/4
+                    Matrix4x4.CreateTranslation(Constant.SpawnPosition)), //(float)Math.PI/4
             };
             _viewport = new Viewport()
             {
@@ -113,15 +114,18 @@ namespace lab1
 
         private void pbViewport_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_isRotating)
+            if (_freeView || _isRotating)
             {
-                var q = _model.Quaternion;
-                q.X = (q.X + (e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
-                q.Y = (q.Y + (e.Y - _lastY) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
-                _model.Quaternion = q;
+                //var q = _model.Quaternion;
+                // _model.Quaternion = q;
+                //_model.Update();
+                var rotationY = ((e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
+                var rotationX = ((e.Y - _lastY) / _viewport.Height * RotationSpeed) % (float)(2 * Math.PI);
+                _view3d.Cam.RotateX(rotationX);
+                _view3d.Cam.RotateY(rotationY);
                 _lastX = e.X;
                 _lastY = e.Y;
-                _model.Update();
+                
                 RedrawViewport();
             }
             if (_isChangingTarget)
@@ -158,6 +162,15 @@ namespace lab1
                     MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
                         $"Details:\n\n{ex.StackTrace}");
                 }
+            }
+            else if (e.Control && e.KeyCode == Keys.C)
+            {
+                _view3d.Cam.Target = Constant.SpawnPosition;
+                RedrawViewport();
+            }
+            else if (e.Control && e.KeyCode == Keys.V)
+            {
+                _freeView = !_freeView;
             }
         }
         #endregion

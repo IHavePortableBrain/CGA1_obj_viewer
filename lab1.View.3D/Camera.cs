@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 
 namespace lab1.View._3D
 {
@@ -12,7 +7,7 @@ namespace lab1.View._3D
         public float Speed = 0.1f;
         
         public Vector3 Eye = new Vector3(0, 0, 0);
-        public Vector3 Target = new Vector3(0, 0, 3);
+        public Vector3 Target = Constant.SpawnPosition;
         public Vector3 Up = new Vector3(0, 1, 0);
         public Vector3 YAxis => Up;
         public Vector3 ZAxis => Vector3.Normalize(Eye - Target);
@@ -40,6 +35,18 @@ namespace lab1.View._3D
         {
             Eye += XAxis * Speed * time;
             return Eye;
+        }
+
+        public void RotateX(float radian)
+        {
+            var rotation = XAxis.CreateRotation(radian);
+            Target = Vector3.Transform(Target, rotation);
+        }
+
+        public void RotateY(float radian)
+        {
+            var rotation = YAxis.CreateRotation(radian);
+            Target = Vector3.Transform(Target, rotation);
         }
     }
 }
