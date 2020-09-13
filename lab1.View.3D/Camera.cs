@@ -9,21 +9,29 @@ namespace lab1.View._3D
         public readonly float MaxPitch = (float)Math.PI / 2;
         public float Speed = 0.1f;
 
-        public Vector3 Eye = Constant.SpawnPosition - new Vector3(3, 0, 0);
+        public Vector3 Eye;
         public Vector3 Target { get; private set; }
         public Vector3 Up = new Vector3(0, 1, 0);
-        public Vector3 YAxis => Up;
-        public Vector3 ZAxis => Vector3.Normalize(Eye - Target);
-        public Vector3 XAxis => Vector3.Normalize(Vector3.Cross(Up, ZAxis));
+        public Vector3 YAxis => Vector3.Normalize(Vector3.Cross(XAxis, ZAxis));
+        public Vector3 ZAxis => Vector3.Normalize(-Target); // +Eye 
+        public Vector3 XAxis => Vector3.Normalize(Vector3.Cross(ZAxis, Up));
 
-        private float _yaw = Constant.InitYaw; // rad
-        public float Yaw { get { return _yaw; } set{ _yaw = value; UpdateTarget(); } }//% MaxYaw
-        private float _pitch = Constant.InitPitch; // rad
-        public float Pitch { get { return _pitch; } set { _pitch = value; UpdateTarget(); } } // % MaxPitch
+        private float _yaw; // rad
+        public float Yaw { get { return _yaw; } set{ _yaw = value % MaxYaw; UpdateTarget(); } }
+        private float _pitch; // rad
+        public float Pitch { get { return _pitch; } set { _pitch = value % MaxPitch; UpdateTarget(); } }
 
         public Camera()
         {
+            ResetEyeAndTarget();
             UpdateTarget();
+        }
+
+        public void ResetEyeAndTarget()
+        {
+            Eye = Constant.SpawnPosition - new Vector3(3, 0, 0);
+            Yaw = Constant.InitYaw;
+            Pitch = Constant.InitPitch;
         }
 
         public Vector3 MoveForward(float time = 1f)

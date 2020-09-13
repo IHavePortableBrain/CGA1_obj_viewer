@@ -10,8 +10,8 @@ namespace lab1
 {
     public partial class Form1 : Form
     {
-        public const float ScaleSpeed = 0.0001f;
-        public const float RotationSpeed = 2 * (float) Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
+        public const float ScaleSpeed = 0.0_001f;
+        public const float CameraRotationSpeed = 2 * 100 * (float) Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
         private bool _isChangingTarget;
         private bool _freeView;
         private float _lastX;
@@ -104,11 +104,10 @@ namespace lab1
         {
             if (_freeView || _isChangingTarget)
             {
-                var rotationY = ((e.X - _lastX) * RotationSpeed) % (float)(2 * Math.PI); // / _view3d.Viewport.Width 
-                var rotationX = ((e.Y - _lastY) * RotationSpeed) % (float)(2 * Math.PI); // / _view3d.Viewport.Height
+                var rotationY = ((_lastX - e.X) / _view3d.Viewport.Width * CameraRotationSpeed) % (float)(2 * Math.PI);
+                var rotationX = ((_lastY - e.Y) / _view3d.Viewport.Height * CameraRotationSpeed) % (float)(2 * Math.PI);
                 _view3d.Cam.Yaw += rotationY;
                 _view3d.Cam.Pitch += rotationX;
-                Console.WriteLine($"Rot Y: {rotationY}, Rot X: {rotationX}");
                 _lastX = e.X;
                 _lastY = e.Y;
                 
@@ -134,8 +133,7 @@ namespace lab1
             }
             else if (e.Control && e.KeyCode == Keys.C)
             {
-                _view3d.Cam.Yaw = Constant.InitYaw;
-                _view3d.Cam.Pitch = Constant.InitPitch;
+                _view3d.Cam.ResetEyeAndTarget();
                 RedrawViewport();
             }
             else if (e.Control && e.KeyCode == Keys.V)

@@ -8,7 +8,7 @@ namespace lab1.View._3D
 {
     public class View3d
     {
-        private const float _FOV = (float)(90 * Math.PI / 180);
+        private const float _FOV = (float)(110 * Math.PI / 180);
         private const float _aspect = 2.39f;
         private const float _zFar = 1000;
         private const float _zNear = 0.1f;
