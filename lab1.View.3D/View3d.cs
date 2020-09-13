@@ -8,13 +8,13 @@ namespace lab1.View._3D
 {
     public class View3d
     {
-        private const float _FOV = (float)(110 * Math.PI / 180);
+        private const float _FOV = (float)(90 * Math.PI / 180);
         private const float _aspect = 2.39f;
         private const float _zFar = 1000;
         private const float _zNear = 0.1f;
 
+        public readonly Viewport Viewport;
         private readonly Model _model;
-        private readonly Viewport _viewport;
         private Bitmap _image;
 
         public Pen Pen = new Pen(Color.Black);
@@ -37,20 +37,20 @@ namespace lab1.View._3D
         private Matrix4x4 ToViewportSpaceTransform =>
             Matrix4x4.Transpose(
                 new Matrix4x4(
-                    _viewport.Width / 2, 0, 0, _viewport.MinX + _viewport.Width / 2,
-                    0, - _viewport.Height / 2, 0, _viewport.MinY + _viewport.Height / 2,
+                    Viewport.Width / 2, 0, 0, Viewport.MinX + Viewport.Width / 2,
+                    0, - Viewport.Height / 2, 0, Viewport.MinY + Viewport.Height / 2,
                     0, 0, 1, 0,
                     0, 0, 0, 1));
 
         public View3d(Model model, Viewport viewport)
         {
             _model = model;
-            _viewport = viewport;
+            Viewport = viewport;
         }
 
         public Image Redraw()
         {
-            _image = new Bitmap(_viewport.Width, _viewport.Height);
+            _image = new Bitmap(Viewport.Width, Viewport.Height);
             using (var graphics = Graphics.FromImage(_image))
             {
                 var modelVectors = (Vector4[])_model.Vectors.Clone();
@@ -63,15 +63,15 @@ namespace lab1.View._3D
                         var endVertexIndex = face.VertexIndicies[i + 1] - 1;
                         var startVector = vectors[startVertexIndex];
                         var endVector = vectors[endVertexIndex];
-                        if (startVector.Z < 0 && endVector.Z < 0)
-                        {
-                            continue;
-                        }
 
+                        if (startVector.X < 0 || startVector.X >= Viewport.Width || startVector.Y < 0 || startVector.Y >= Viewport.Height ||
+                            endVector.X < 0 || endVector.X >= Viewport.Width || endVector.Y < 0 || endVector.Y >= Viewport.Height ||
+                            startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1) 
+                            continue;
                         try
                         {
-                            //_image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                            graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                            _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                            //graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
                         }
                         catch (Exception)
                         {
@@ -106,13 +106,13 @@ namespace lab1.View._3D
             //var toWorld = ToWorldTransform;
             //if (toWorld.HasValue)
             //{
-            var viewPortTarget = new Vector4(x, y, Cam.Eye.Z, 1);
-            var target = TransformToWorld(viewPortTarget); //Vector4.Transform(viewPortTarget, toWorld.Value);
-            if (target.HasValue)
-            {
-                var v = target.Value;
-                Cam.Target = new Vector3(v.X, v.Y, v.Z);
-            }
+            //var viewPortTarget = new Vector4(x, y, Cam.Eye.Z, 1);
+            //var target = TransformToWorld(viewPortTarget); //Vector4.Transform(viewPortTarget, toWorld.Value);
+            //if (target.HasValue)
+            //{
+            //    var v = target.Value;
+            //    Cam.Target = new Vector3(v.X, v.Y, v.Z);
+            //}
 
             //}
         }

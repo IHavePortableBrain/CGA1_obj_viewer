@@ -10,41 +10,31 @@ namespace lab1
 {
     public partial class Form1 : Form
     {
-        public const float ScaleSpeed = 0.7f;
-        public const float MinScale = 0.1f;
-        public const float MaxScale = 10f;
-        public const float RotationSpeed = 180 * (float)Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
-        private bool _isRotating = false;
+        public const float ScaleSpeed = 0.0001f;
+        public const float RotationSpeed = 2 * (float) Math.PI / 180; // rotation degree count per 1 % viewport width dragged;
+        private bool _isChangingTarget;
         private bool _freeView;
-        private bool _isChangingTarget = true;
         private float _lastX;
         private float _lastY;
 
-        private readonly Obj _obj = new Obj();
         private readonly Model _model;
         private readonly View3d _view3d;
-        private readonly Viewport _viewport;
 
         public Form1()
         {
             InitializeComponent();
             pbViewport.MouseWheel += PbViewport_MouseWheel;
-            pbViewport.LostFocus += PbViewport_LostFocus;
             pbViewport.PreviewKeyDown += PbViewport_PreviewKeyDown;
-            var q = new Quaternion(0, (float)Math.PI / 12, 0, 1);
-            var test = Matrix4x4.CreateFromQuaternion(q);
-            _model = new Model(_obj)
+
+            _model = new Model(new Obj())
             {
-                MoveTranslation = Matrix4x4.Multiply(
-                    test,
-                    Matrix4x4.CreateTranslation(Constant.SpawnPosition)), //(float)Math.PI/4
+                MoveTranslation = Matrix4x4.CreateTranslation(Constant.SpawnPosition),
             };
-            _viewport = new Viewport()
+            _view3d = new View3d(_model, new Viewport()
             {
                 Width = pbViewport.Width,
                 Height = pbViewport.Height,
-            };
-            _view3d = new View3d(_model, _viewport);
+            });
         }
 
         private void RedrawViewport()
@@ -80,18 +70,16 @@ namespace lab1
         private void PbViewport_MouseWheel(object sender, MouseEventArgs e)
         {
             _model.Scale = 1 + e.Delta * ScaleSpeed;
-            _model.Scale = _model.Scale > MaxScale ? MaxScale : _model.Scale;
-            _model.Scale = _model.Scale < MinScale ? MinScale : _model.Scale;
             _model.Update();
             RedrawViewport();
         }
 
         private void pbViewport_MouseDown(object sender, MouseEventArgs e)
         {
-            Console.WriteLine($"Start rotating {_isRotating}");
+            Console.WriteLine($"Start rotating {_isChangingTarget}");
             if (e is MouseEventArgs me)
             {
-                _isRotating = true;
+                _isChangingTarget = true;
                 _lastX = me.X;
                 _lastY = me.Y;
             }
@@ -99,10 +87,10 @@ namespace lab1
 
         private void pbViewport_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_isRotating)
+            if (_isChangingTarget)
             {
-                Console.WriteLine($"End rotating {_isRotating}");
-                _isRotating = false;
+                Console.WriteLine($"End rotating {_isChangingTarget}");
+                _isChangingTarget = false;
             }
         }
 
@@ -114,37 +102,18 @@ namespace lab1
 
         private void pbViewport_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_freeView || _isRotating)
+            if (_freeView || _isChangingTarget)
             {
-                //var q = _model.Quaternion;
-                // _model.Quaternion = q;
-                //_model.Update();
-                var rotationY = ((e.X - _lastX) / _viewport.Width * RotationSpeed) % (float)(2 * Math.PI);
-                var rotationX = ((e.Y - _lastY) / _viewport.Height * RotationSpeed) % (float)(2 * Math.PI);
-                _view3d.Cam.RotateX(rotationX);
-                _view3d.Cam.RotateY(rotationY);
+                var rotationY = ((e.X - _lastX) * RotationSpeed) % (float)(2 * Math.PI); // / _view3d.Viewport.Width 
+                var rotationX = ((e.Y - _lastY) * RotationSpeed) % (float)(2 * Math.PI); // / _view3d.Viewport.Height
+                _view3d.Cam.Yaw += rotationY;
+                _view3d.Cam.Pitch += rotationX;
+                Console.WriteLine($"Rot Y: {rotationY}, Rot X: {rotationX}");
                 _lastX = e.X;
                 _lastY = e.Y;
                 
                 RedrawViewport();
             }
-            if (_isChangingTarget)
-            {
-                //_view3d.UpdateCameraTarget(e.X, e.Y);
-                //RedrawViewport();
-            }
-        }
-
-        private void PbViewport_LostFocus(object sender, EventArgs e)
-        {
-            Console.WriteLine("Lost focus");
-            _isRotating = false;
-        }
-
-        private void pbViewport_MouseLeave(object sender, EventArgs e)
-        {
-            Console.WriteLine("Mouse leave");
-            _isRotating = false;
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -153,7 +122,7 @@ namespace lab1
             {
                 try
                 {
-                    _obj.LoadObj(dlgOpenObjFile.FileName);
+                    _model.Obj.Load(dlgOpenObjFile.FileName);
                     _model.Reload();
                     RedrawViewport();
                 }
@@ -165,7 +134,8 @@ namespace lab1
             }
             else if (e.Control && e.KeyCode == Keys.C)
             {
-                _view3d.Cam.Target = Constant.SpawnPosition;
+                _view3d.Cam.Yaw = Constant.InitYaw;
+                _view3d.Cam.Pitch = Constant.InitPitch;
                 RedrawViewport();
             }
             else if (e.Control && e.KeyCode == Keys.V)

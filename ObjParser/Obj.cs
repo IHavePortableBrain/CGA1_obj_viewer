@@ -26,21 +26,21 @@ namespace ObjParser
 			Faces.Clear();
         }
 
-        public void LoadObj(string path)
+        public void Load(string path)
         {
 			Clear();
-			LoadObj(File.ReadAllLines(path));
+			Load(File.ReadAllLines(path));
         }
 
-	    public void LoadObj(Stream data)
+	    public void Load(Stream data)
 	    {
             using (var reader = new StreamReader(data))
             {
-                LoadObj(reader.ReadToEnd().Split(Environment.NewLine.ToCharArray()));
+                Load(reader.ReadToEnd().Split(Environment.NewLine.ToCharArray()));
             }
 	    }
 
-	    public void LoadObj(IEnumerable<string> data)
+	    public void Load(IEnumerable<string> data)
 	    {
             foreach (var line in data)
             {

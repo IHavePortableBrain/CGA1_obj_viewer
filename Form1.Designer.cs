@@ -45,7 +45,6 @@
             this.pbViewport.TabIndex = 1;
             this.pbViewport.TabStop = false;
             this.pbViewport.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseDown);
-            this.pbViewport.MouseLeave += new System.EventHandler(this.pbViewport_MouseLeave);
             this.pbViewport.MouseHover += new System.EventHandler(this.pbViewport_MouseHover);
             this.pbViewport.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseMove);
             this.pbViewport.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseUp);
