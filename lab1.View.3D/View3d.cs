@@ -8,7 +8,7 @@ namespace lab1.View._3D
 {
     public class View3d
     {
-        private const float _FOV = (float)(110 * Math.PI / 180);
+        private const float _FOV = (float)(60 * Math.PI / 180);
         private const float _aspect = 2.39f;
         private const float _zFar = 1000;
         private const float _zNear = 0.1f;
@@ -57,20 +57,20 @@ namespace lab1.View._3D
                 var vectors = CalculateViewportVectors(modelVectors);
                 Parallel.ForEach(_model.Faces, face =>
                 {
-                    for (int i = 0; i < face.VertexIndicies.Length - 1; i++)
+                    for (int i = 0; i < face.VertexIndicies.Length; i++) //  - 1
                     {
                         var startVertexIndex = face.VertexIndicies[i] - 1; // array starts from 0, obj index starts from 1
-                        var endVertexIndex = face.VertexIndicies[i + 1] - 1;
+                        var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length] - 1;
                         var startVector = vectors[startVertexIndex];
                         var endVector = vectors[endVertexIndex];
 
                         if (startVector.X < 0 || startVector.X >= Viewport.Width || startVector.Y < 0 || startVector.Y >= Viewport.Height ||
                             endVector.X < 0 || endVector.X >= Viewport.Width || endVector.Y < 0 || endVector.Y >= Viewport.Height ||
-                            startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1) 
+                            startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
                             continue;
                         try
                         {
-                            _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                            _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y); //  Viewport.Width, Viewport.Height
                             //graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
                         }
                         catch (Exception)

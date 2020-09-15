@@ -30,11 +30,7 @@ namespace lab1
             {
                 MoveTranslation = Matrix4x4.CreateTranslation(Constant.SpawnPosition),
             };
-            _view3d = new View3d(_model, new Viewport()
-            {
-                Width = pbViewport.Width,
-                Height = pbViewport.Height,
-            });
+            _view3d = new View3d(_model, new Viewport());
         }
 
         private void RedrawViewport()
@@ -140,6 +136,14 @@ namespace lab1
             {
                 _freeView = !_freeView;
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            pbViewport.Width = Width; // todo refactor
+            pbViewport.Height = Height;
+            _view3d.Viewport.Width = Width;
+            _view3d.Viewport.Height = Height;
         }
         #endregion
     }
