@@ -19,7 +19,9 @@
                 y += yInc;
                 lock (image)
                 {
-                    image.SetPixel((int)x, (int)y, Color.Black); // todo color from params
+
+                    if (x >= 0 && x < image.Width && y >= 0 && y < image.Height)
+                        image.SetPixel((int)x, (int)y, Color.Black); // todo color from params
                 }
             }
         }

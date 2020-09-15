@@ -64,9 +64,7 @@ namespace lab1.View._3D
                         var startVector = vectors[startVertexIndex];
                         var endVector = vectors[endVertexIndex];
 
-                        if (startVector.X < 0 || startVector.X >= Viewport.Width || startVector.Y < 0 || startVector.Y >= Viewport.Height ||
-                            endVector.X < 0 || endVector.X >= Viewport.Width || endVector.Y < 0 || endVector.Y >= Viewport.Height ||
-                            startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
+                        if (startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
                             continue;
                         try
                         {
