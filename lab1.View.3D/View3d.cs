@@ -87,14 +87,14 @@ namespace lab1.View._3D
             var toObserver = ToObserverSpaceTransform;
             var toProjection = ToProjectionSpaceTransform;
             var toViewport = ToViewportSpaceTransform;
-            Parallel.For(0, vectors.Length, i =>
+            for (int i = 0; i < vectors.Length; i++)
             {
                 vectors[i] = Vector4.Transform(vectors[i], toObserver);
                 //if (vectors.Next and v.Curr < _znear or >_zFar)add to unobserved
                 vectors[i] = Vector4.Transform(vectors[i], toProjection);
                 vectors[i] = Vector4.Divide(vectors[i], vectors[i].W);
                 vectors[i] = Vector4.Transform(vectors[i], toViewport);
-            });
+            };
         }
 
         #region trash
