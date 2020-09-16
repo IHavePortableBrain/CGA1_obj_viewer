@@ -1,6 +1,7 @@
 ﻿using lab1.World;
 using ObjParser.Types;
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -21,7 +22,6 @@ namespace lab1.View._3D
         public Pen Pen = new Pen(System.Drawing.Color.Black);
         public Camera Cam = new Camera();
 
-        private Matrix4x4 _toObserver;
         private Matrix4x4 ToObserverSpaceTransform => //Matrix4x4.CreateLookAt(_eye, _target, _zAxis);
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -30,7 +30,6 @@ namespace lab1.View._3D
                     Cam.ZAxis.X, Cam.ZAxis.Y, Cam.ZAxis.Z, -Vector3.Dot(Cam.ZAxis, Cam.Eye),
                     0, 0, 0, 1));
 
-        private Matrix4x4 _toProjection;
         private Matrix4x4 ToProjectionSpaceTransform => //Matrix4x4.CreatePerspectiveFieldOfView(_FOV, _aspect, _zNear, _zFar);
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -39,7 +38,6 @@ namespace lab1.View._3D
                     0, 0, _zFar / (_zNear - _zFar), _zNear * _zFar / (_zNear - _zFar),
                     0, 0, -1, 0));
 
-        private Matrix4x4 _toViewport;
         private Matrix4x4 ToViewportSpaceTransform =>
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -58,10 +56,7 @@ namespace lab1.View._3D
         {
             _image = new Bitmap(Viewport.Width, Viewport.Height);
             var vectors = (Vector4[])_model.Vectors.Clone();
-            _toObserver = ToObserverSpaceTransform;
-            _toProjection = ToProjectionSpaceTransform;
-            _toViewport = ToViewportSpaceTransform;
-            FaceToViewport(vectors);
+            TransformToViewport(vectors);
             Parallel.ForEach(_model.Faces, face =>
             {
                 for (int i = 0; i < face.VertexIndicies.Length; i++)
@@ -86,17 +81,20 @@ namespace lab1.View._3D
             return _image;
         }
 
-        private void FaceToViewport(Vector4[] vectors)
+        private void TransformToViewport(Vector4[] vectors)
         {
             // await Task.CompletedTask;
-            for (int i = 0; i < vectors.Length; i++)
+            var toObserver = ToObserverSpaceTransform;
+            var toProjection = ToProjectionSpaceTransform;
+            var toViewport = ToViewportSpaceTransform;
+            Parallel.For(0, vectors.Length, i =>
             {
-                vectors[i] = Vector4.Transform(vectors[i], _toObserver);
+                vectors[i] = Vector4.Transform(vectors[i], toObserver);
                 //if (vectors.Next and v.Curr < _znear or >_zFar)add to unobserved
-                vectors[i] = Vector4.Transform(vectors[i], _toProjection);
+                vectors[i] = Vector4.Transform(vectors[i], toProjection);
                 vectors[i] = Vector4.Divide(vectors[i], vectors[i].W);
-                vectors[i] = Vector4.Transform(vectors[i], _toViewport);
-            }
+                vectors[i] = Vector4.Transform(vectors[i], toViewport);
+            });
         }
 
         #region trash
