@@ -36,17 +36,15 @@ namespace lab1.View._3D
 
         public Vector3 MoveForward(float time = 1f)
         {
-            var delta = ZAxis * Speed * time;
-            Target -= delta;
-            Eye -= delta;
+            var delta = Target * Speed * time;
+            Eye += delta;
             return Eye;
         }
 
         public Vector3 MoveBackward(float time = 1f)
         {
-            var delta = ZAxis * Speed * time;
-            Target += delta;
-            Eye += delta;
+            var delta = Target * Speed * time;
+            Eye -= delta;
             return Eye;
         }
 
