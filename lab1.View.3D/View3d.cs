@@ -1,8 +1,10 @@
 ﻿using lab1.World;
+using MathNet.Spatial.Euclidean;
 using ObjParser.Types;
 using System;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -55,9 +57,19 @@ namespace lab1.View._3D
         public Image Redraw()
         {
             _image = new Bitmap(Viewport.Width, Viewport.Height);
+            Point2D p1 = new Point2D(0, 0),
+                    p2 = new Point2D(Viewport.Width, 0),
+                    p3 = new Point2D(Viewport.Width, Viewport.Height),
+                    p4 = new Point2D(0, Viewport.Height);
+            Line2D upBorder = new Line2D(p1, p2),
+                    rightBorder = new Line2D(p2, p3),
+                    bottomBorder = new Line2D(p3, p4),
+                    leftBorder = new Line2D(p4, p1);
+            var polygon = new Polygon2D(p1, p2, p3, p4);
+
             var vectors = (Vector4[])_model.Vectors.Clone();
             TransformToViewport(vectors);
-            Parallel.ForEach(_model.Faces, face =>
+            foreach (var face in _model.Faces)
             {
                 for (int i = 0; i < face.VertexIndicies.Length; i++)
                 {
@@ -70,14 +82,15 @@ namespace lab1.View._3D
                         continue;
                     try
                     {
-                        _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
+                        DrawDdaLine(_image, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y,
+                            polygon, upBorder, rightBorder, bottomBorder, leftBorder);
                     }
                     catch (Exception)
                     {
                         Console.WriteLine($"Exception while drawing {startVector} --> {endVector}");
                     }
                 }
-            });
+            };
             return _image;
         }
 
@@ -95,6 +108,32 @@ namespace lab1.View._3D
                 vectors[i] = Vector4.Divide(vectors[i], vectors[i].W);
                 vectors[i] = Vector4.Transform(vectors[i], toViewport);
             };
+        }
+
+        public static void DrawDdaLine(Bitmap image, int xStart, int yStart, int xEnd, int yEnd, Polygon2D polygon, params Line2D[] borders) // todo get rid of borders or polygon, or both
+        {
+            Point2D lineStart = new Point2D(xStart, yStart),
+                    lineEnd = new Point2D(xEnd, yEnd);
+            var line = new Line2D(lineStart, lineEnd);
+            var intersections = borders.Select(l => l.IntersectWith(line)).Where(p => p.HasValue).Select(p => p.Value);
+            lineStart = polygon.EnclosesPoint(lineStart) ? lineStart : intersections.First();// line start and line end can we swapped.
+            lineEnd = polygon.EnclosesPoint(lineStart) ? lineEnd : intersections.Last();
+            float dx = (float)(lineEnd.X - lineStart.X),
+                dy = (float)(lineEnd.Y - lineStart.Y),
+                stepCount = Math.Abs(dx) > Math.Abs(dy) ? Math.Abs(dx) : Math.Abs(dy); // clip with Math.Max min and remove if condition; foreach + partioner
+            float
+                x = xStart,
+                y = yStart,
+                xInc = dx / stepCount,
+                yInc = dy / stepCount;
+
+            for (int i = 0; i < stepCount; i++)
+            {
+                x += xInc;
+                y += yInc;
+
+                image.SetPixel((int)x, (int)y, System.Drawing.Color.Black); // todo color from params
+            }
         }
 
         #region trash
