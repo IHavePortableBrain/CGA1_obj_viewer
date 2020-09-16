@@ -1,4 +1,5 @@
 ﻿using lab1.World;
+using ObjParser.Types;
 using System;
 using System.Drawing;
 using System.Numerics;
@@ -9,15 +10,15 @@ namespace lab1.View._3D
     public class View3d
     {
         private const float _FOV = (float)(60 * Math.PI / 180);
-        private const float _aspect = 2.39f;
         private const float _zFar = 1000;
         private const float _zNear = 0.1f;
 
+        public float Aspect => Viewport.Width / (float)Viewport.Height;
         public readonly Viewport Viewport;
         private readonly Model _model;
         private Bitmap _image;
 
-        public Pen Pen = new Pen(Color.Black);
+        public Pen Pen = new Pen(System.Drawing.Color.Black);
         public Camera Cam = new Camera();
 
         private Matrix4x4 ToObserverSpaceTransform => //Matrix4x4.CreateLookAt(_eye, _target, _zAxis);
@@ -30,15 +31,15 @@ namespace lab1.View._3D
         private Matrix4x4 ToProjectionSpaceTransform => //Matrix4x4.CreatePerspectiveFieldOfView(_FOV, _aspect, _zNear, _zFar);
             Matrix4x4.Transpose(
                 new Matrix4x4(
-                    1 / (_aspect * (float)Math.Tan(_FOV / 2)), 0, 0, 0,
+                    1 / (Aspect * (float)Math.Tan(_FOV / 2)), 0, 0, 0,
                     0, 1 / (float)Math.Tan(_FOV / 2), 0, 0,
                     0, 0, _zFar / (_zNear - _zFar), _zNear * _zFar / (_zNear - _zFar),
                     0, 0, -1, 0));
         private Matrix4x4 ToViewportSpaceTransform =>
             Matrix4x4.Transpose(
                 new Matrix4x4(
-                    Viewport.Width / 2, 0, 0, Viewport.MinX + Viewport.Width / 2,
-                    0, - Viewport.Height / 2, 0, Viewport.MinY + Viewport.Height / 2,
+                    Viewport.Width / 2f, 0, 0, Viewport.MinX + Viewport.Width / 2f,
+                    0, - Viewport.Height / 2f, 0, Viewport.MinY + Viewport.Height / 2f,
                     0, 0, 1, 0,
                     0, 0, 0, 1));
 
@@ -51,38 +52,33 @@ namespace lab1.View._3D
         public Image Redraw()
         {
             _image = new Bitmap(Viewport.Width, Viewport.Height);
-            using (var graphics = Graphics.FromImage(_image))
+            var vectors = (Vector4[])_model.Vectors.Clone();
+            FaceToViewport(vectors);
+            Parallel.ForEach(_model.Faces, face =>
             {
-                var modelVectors = (Vector4[])_model.Vectors.Clone();
-                var vectors = CalculateViewportVectors(modelVectors);
-                Parallel.ForEach(_model.Faces, face =>
+                for (int i = 0; i < face.VertexIndicies.Length; i++)
                 {
-                    for (int i = 0; i < face.VertexIndicies.Length; i++) //  - 1
-                    {
-                        var startVertexIndex = face.VertexIndicies[i] - 1; // array starts from 0, obj index starts from 1
-                        var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length] - 1;
-                        var startVector = vectors[startVertexIndex];
-                        var endVector = vectors[endVertexIndex];
+                    var startVertexIndex = face.VertexIndicies[i] - 1;
+                    var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length] - 1;
+                    var startVector = vectors[startVertexIndex];
+                    var endVector = vectors[endVertexIndex];
 
-                        if (startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
-                            continue;
-                        try
-                        {
-                            _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y); //  Viewport.Width, Viewport.Height
-                            //graphics.DrawLine(Pen, (int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                        }
-                        catch (Exception)
-                        {
-                            Console.WriteLine($"Exception while drawing {startVector} --> {endVector}");
-                        }
+                    if (startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
+                        continue;
+                    try
+                    {
+                        _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
                     }
-                });
-                //_graphics.DrawImageUnscaled()
-                return _image;
-            }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"Exception while drawing {startVector} --> {endVector}");
+                    }
+                }
+            });
+            return _image;
         }
 
-        private Vector4[] CalculateViewportVectors(Vector4[] vectors)
+        private void FaceToViewport(Vector4[] vectors)
         {
             // await Task.CompletedTask;
             var toObserver = ToObserverSpaceTransform;
@@ -91,29 +87,14 @@ namespace lab1.View._3D
             for (int i = 0; i < vectors.Length; i++)
             {
                 vectors[i] = Vector4.Transform(vectors[i], toObserver);
+                //if (vectors.Next and v.Curr < _znear or >_zFar)add to unobserved
                 vectors[i] = Vector4.Transform(vectors[i], toProjection);
-                vectors[i] = Vector4.Divide(vectors[i], vectors[i].W); //
+                vectors[i] = Vector4.Divide(vectors[i], vectors[i].W);
                 vectors[i] = Vector4.Transform(vectors[i], toViewport);
             }
-            return vectors;
         }
 
         #region trash
-            public void UpdateCameraTarget(int x, int y)
-        {
-            //var toWorld = ToWorldTransform;
-            //if (toWorld.HasValue)
-            //{
-            //var viewPortTarget = new Vector4(x, y, Cam.Eye.Z, 1);
-            //var target = TransformToWorld(viewPortTarget); //Vector4.Transform(viewPortTarget, toWorld.Value);
-            //if (target.HasValue)
-            //{
-            //    var v = target.Value;
-            //    Cam.Target = new Vector3(v.X, v.Y, v.Z);
-            //}
-
-            //}
-        }
 
         private Vector4? TransformToWorld(Vector4 v)
         {

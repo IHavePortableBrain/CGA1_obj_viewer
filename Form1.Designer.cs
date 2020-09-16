@@ -39,9 +39,10 @@
             // 
             // pbViewport
             // 
+            this.pbViewport.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbViewport.Location = new System.Drawing.Point(0, 0);
             this.pbViewport.Name = "pbViewport";
-            this.pbViewport.Size = new System.Drawing.Size(1920, 1080);
+            this.pbViewport.Size = new System.Drawing.Size(1902, 1033);
             this.pbViewport.TabIndex = 1;
             this.pbViewport.TabStop = false;
             this.pbViewport.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbViewport_MouseDown);
@@ -61,6 +62,7 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pbViewport)).EndInit();
             this.ResumeLayout(false);
 

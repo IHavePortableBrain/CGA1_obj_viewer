@@ -72,7 +72,6 @@ namespace lab1
 
         private void pbViewport_MouseDown(object sender, MouseEventArgs e)
         {
-            Console.WriteLine($"Start rotating {_isChangingTarget}");
             if (e is MouseEventArgs me)
             {
                 _isChangingTarget = true;
@@ -85,14 +84,12 @@ namespace lab1
         {
             if (_isChangingTarget)
             {
-                Console.WriteLine($"End rotating {_isChangingTarget}");
                 _isChangingTarget = false;
             }
         }
 
         private void pbViewport_MouseHover(object sender, EventArgs e)
         {
-            Console.WriteLine($"Focus");
             pbViewport.Focus();
         }
 
@@ -140,10 +137,18 @@ namespace lab1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            pbViewport.Width = Width; // todo refactor
-            pbViewport.Height = Height;
             _view3d.Viewport.Width = Width;
             _view3d.Viewport.Height = Height;
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            if (_view3d?.Viewport != null)
+            {
+                _view3d.Viewport.Width = Width;
+                _view3d.Viewport.Height = Height;
+                RedrawViewport();
+            }
         }
         #endregion
     }
