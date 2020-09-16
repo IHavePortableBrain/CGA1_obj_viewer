@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ObjParser.Types
 {
@@ -14,6 +12,7 @@ namespace ObjParser.Types
         public const string Prefix = "f";
 
         public string UseMtl { get; set; }
+        public List<int> UnobservedEdgeStartIndecies { get; set; }
         public int[] VertexIndicies { get; set; }
         public int?[] TextureIndicies { get; set; }
         public int?[] NormalIndicies { get; set; }
@@ -39,11 +38,13 @@ namespace ObjParser.Types
 
                 success = int.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out int vertexIndex);
                 if (!success) throw new ArgumentException("Could not parse parameter as int");
+                vertexIndex -= 1; // Obj indexing starts from 1. Array indexing starts from 0;
                 VertexIndicies[i] = vertexIndex;
 
                 if (parts.Count() > 1)
                 {
                     success = int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out vertexIndex);
+                    vertexIndex -= 1;
                     if (success) {
                         TextureIndicies[i] = vertexIndex;
                     }
@@ -51,6 +52,7 @@ namespace ObjParser.Types
                     if (parts.Count() > 2)
                     {
                         success = int.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out vertexIndex);
+                        vertexIndex -= 1;
                         if (success)
                         {
                             NormalIndicies[i] = vertexIndex;

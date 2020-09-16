@@ -21,6 +21,7 @@ namespace lab1.View._3D
         public Pen Pen = new Pen(System.Drawing.Color.Black);
         public Camera Cam = new Camera();
 
+        private Matrix4x4 _toObserver;
         private Matrix4x4 ToObserverSpaceTransform => //Matrix4x4.CreateLookAt(_eye, _target, _zAxis);
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -28,6 +29,8 @@ namespace lab1.View._3D
                     Cam.YAxis.X, Cam.YAxis.Y, Cam.YAxis.Z, -Vector3.Dot(Cam.YAxis, Cam.Eye),
                     Cam.ZAxis.X, Cam.ZAxis.Y, Cam.ZAxis.Z, -Vector3.Dot(Cam.ZAxis, Cam.Eye),
                     0, 0, 0, 1));
+
+        private Matrix4x4 _toProjection;
         private Matrix4x4 ToProjectionSpaceTransform => //Matrix4x4.CreatePerspectiveFieldOfView(_FOV, _aspect, _zNear, _zFar);
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -35,6 +38,8 @@ namespace lab1.View._3D
                     0, 1 / (float)Math.Tan(_FOV / 2), 0, 0,
                     0, 0, _zFar / (_zNear - _zFar), _zNear * _zFar / (_zNear - _zFar),
                     0, 0, -1, 0));
+
+        private Matrix4x4 _toViewport;
         private Matrix4x4 ToViewportSpaceTransform =>
             Matrix4x4.Transpose(
                 new Matrix4x4(
@@ -53,13 +58,16 @@ namespace lab1.View._3D
         {
             _image = new Bitmap(Viewport.Width, Viewport.Height);
             var vectors = (Vector4[])_model.Vectors.Clone();
+            _toObserver = ToObserverSpaceTransform;
+            _toProjection = ToProjectionSpaceTransform;
+            _toViewport = ToViewportSpaceTransform;
             FaceToViewport(vectors);
             Parallel.ForEach(_model.Faces, face =>
             {
                 for (int i = 0; i < face.VertexIndicies.Length; i++)
                 {
-                    var startVertexIndex = face.VertexIndicies[i] - 1;
-                    var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length] - 1;
+                    var startVertexIndex = face.VertexIndicies[i];
+                    var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length];
                     var startVector = vectors[startVertexIndex];
                     var endVector = vectors[endVertexIndex];
 
@@ -81,16 +89,13 @@ namespace lab1.View._3D
         private void FaceToViewport(Vector4[] vectors)
         {
             // await Task.CompletedTask;
-            var toObserver = ToObserverSpaceTransform;
-            var toProjection = ToProjectionSpaceTransform;
-            var toViewport = ToViewportSpaceTransform;
             for (int i = 0; i < vectors.Length; i++)
             {
-                vectors[i] = Vector4.Transform(vectors[i], toObserver);
+                vectors[i] = Vector4.Transform(vectors[i], _toObserver);
                 //if (vectors.Next and v.Curr < _znear or >_zFar)add to unobserved
-                vectors[i] = Vector4.Transform(vectors[i], toProjection);
+                vectors[i] = Vector4.Transform(vectors[i], _toProjection);
                 vectors[i] = Vector4.Divide(vectors[i], vectors[i].W);
-                vectors[i] = Vector4.Transform(vectors[i], toViewport);
+                vectors[i] = Vector4.Transform(vectors[i], _toViewport);
             }
         }
 

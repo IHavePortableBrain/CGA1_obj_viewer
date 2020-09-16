@@ -24,7 +24,7 @@ namespace ObjParser
 			Textures.Clear();
 			Normals.Clear();
 			Faces.Clear();
-        }
+		}
 
         public void Load(string path)
         {
@@ -97,8 +97,8 @@ namespace ObjParser
 					case Vertex.Prefix:
 						Vertex v = new Vertex();
 						v.LoadFrom(parts);
-						Verticies.Add(v);
 						v.Index = Verticies.Count();
+						Verticies.Add(v);
 						break;
 					case Face.Prefix:
 						Face f = new Face();
@@ -109,14 +109,14 @@ namespace ObjParser
 					case VertexTexture.Prefix:
 						VertexTexture vt = new VertexTexture();
 						vt.LoadFrom(parts);
-						Textures.Add(vt);
 						vt.Index = Textures.Count();
+						Textures.Add(vt);
 						break;
 					case VertexNormal.Prefix:
 						VertexNormal vn = new VertexNormal();
 						vn.LoadFrom(parts);
-						Normals.Add(vn);
 						vn.Index = Normals.Count();
+						Normals.Add(vn);
 						break;
 				}
 			}
