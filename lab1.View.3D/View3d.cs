@@ -2,6 +2,7 @@
 using ObjParser.Types;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -66,18 +67,10 @@ namespace lab1.View._3D
                     var startVector = vectors[startVertexIndex];
                     var endVector = vectors[endVertexIndex];
 
-                    if (startVector.Z < 0 || startVector.Z > 1 || endVector.Z < 0 || endVector.Z > 1)
-                        continue;
-                    try
-                    {
-                        _image.DrawDdaLine((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine($"Exception while drawing {startVector} --> {endVector}");
-                    }
+                    if (startVector.Z >= 0 && startVector.Z <= 1 && endVector.Z >= 0 && endVector.Z <= 1)
+                        _image.DrawDdaLineUnsafe((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);  
                 }
-            });
+            }
             return _image;
         }
 

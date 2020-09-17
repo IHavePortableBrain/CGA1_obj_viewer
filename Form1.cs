@@ -35,7 +35,13 @@ namespace lab1
 
         private void RedrawViewport()
         {
-            pbViewport.Image = _view3d.Redraw();
+            try
+            {
+                pbViewport.Image = _view3d.Redraw();
+            }
+            catch (Exception)
+            {
+            }
             pbViewport.Refresh();
         }
 
