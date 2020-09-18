@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.View.3D", "lab1.View.3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.World", "lab1.World\lab1.World.csproj", "{0433CDEA-E9F1-4CD2-B9BA-57B46ADE0CB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.Core", "..\lab1.Core\lab1.Core.csproj", "{D8DF49EB-DC49-4D61-8C4C-5764D1960AA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lab1.Core", "lab1.Core\lab1.Core.csproj", "{D8DF49EB-DC49-4D61-8C4C-5764D1960AA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
