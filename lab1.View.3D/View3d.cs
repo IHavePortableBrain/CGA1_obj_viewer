@@ -20,6 +20,7 @@ namespace lab1.View._3D
         public readonly Viewport Viewport;
         private readonly Model _model;
         private Bitmap _image;
+        private float[] _zBuffer;
 
         public Pen Pen = new Pen(System.Drawing.Color.Black);
         public Camera Cam = new Camera();
@@ -57,12 +58,13 @@ namespace lab1.View._3D
         public Image Redraw()
         {
             _image = new Bitmap(Viewport.Width, Viewport.Height);
+            _zBuffer = Enumerable.Repeat(float.MaxValue, Viewport.Width * Viewport.Height).ToArray();
             var vectors = (Vector4[])_model.Vectors.Clone();
             TransformToViewport(vectors);
             foreach (var face in _model.Faces)
             {
                 var verticies = face.VertexIndicies.Select(vi => vectors[vi]);
-                _image.RasterizeTriangle(verticies.ToArray(), System.Drawing.Color.Black);
+                _image.RasterizeTriangle(_zBuffer, verticies.ToArray(), System.Drawing.Color.Black);
             }
             return _image;
         }

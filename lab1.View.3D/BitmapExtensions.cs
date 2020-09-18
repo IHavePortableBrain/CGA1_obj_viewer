@@ -72,9 +72,8 @@ namespace System.Drawing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RasterizeTriangle(this Bitmap image, Vector4[] t, Color color)
+        public static void RasterizeTriangle(this Bitmap image, float[] zBuffer, Vector4[] t, Color color)
         {
-
             var width = image.Width;
             var height = image.Height;
             if (t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height ||
@@ -106,13 +105,19 @@ namespace System.Drawing
                 int bytesPerPixel = Image.GetPixelFormatSize(image.PixelFormat) / 8;
                 unsafe
                 {
+                    // draw horizontal line
                     for (int j = (int)A.X; j <= B.X; j++)
                     {
                         var x = j;
                         var y = t[0].Y + i;
-                        uint* pixel = (uint*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
-                        if (x >= 0 && x < width && y >= 0 && y < height)
+
+                        float phi = (float)(x - A.X) / (float)(B.X - A.X + 1);
+                        float z = A.Z + (B.Z - A.Z) * phi;
+
+                        if (z < zBuffer[(int)y * image.Width + x] &&  x >= 0 && x < width && y >= 0 && y < height)
                         {
+                            zBuffer[(int)y * image.Width + x] = z;
+                            uint* pixel = (uint*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
                             pixel[0] = 0xff_00_00_00;
                         }
                     }
