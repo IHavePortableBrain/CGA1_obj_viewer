@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -60,16 +61,8 @@ namespace lab1.View._3D
             TransformToViewport(vectors);
             foreach (var face in _model.Faces)
             {
-                for (int i = 0; i < face.VertexIndicies.Length; i++)
-                {
-                    var startVertexIndex = face.VertexIndicies[i];
-                    var endVertexIndex = face.VertexIndicies[(i + 1) % face.VertexIndicies.Length];
-                    var startVector = vectors[startVertexIndex];
-                    var endVector = vectors[endVertexIndex];
-
-                    if (startVector.Z >= 0 && startVector.Z <= 1 && endVector.Z >= 0 && endVector.Z <= 1)
-                        _image.DrawDdaLineUnsafe((int)startVector.X, (int)startVector.Y, (int)endVector.X, (int)endVector.Y);  
-                }
+                var verticies = face.VertexIndicies.Select(vi => vectors[vi]);
+                _image.RasterizeTriangle(verticies.ToArray(), System.Drawing.Color.Black);
             }
             return _image;
         }

@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -54,17 +56,67 @@ namespace System.Drawing
                 int bytesPerPixel = Image.GetPixelFormatSize(image.PixelFormat) / 8;
                 for (int i = 0; i < stepCount; i++)
                 //Partitioner.Create(0, stepCount);
-                //Parallel.For(0, stepCount, i =>
+                //Parallel.For(0, stepCount, i => - if u do this take care about x and y become iteration local
                 {
-                    var xx = x + i * xInc;
-                    var yy = y + i * yInc;
+                    x += xInc;
+                    y += yInc;
 
-                    uint* pixel = (uint*)(bitmapData.Scan0 + (int)xx * bytesPerPixel + (int)yy * bitmapData.Stride);
-                    if (xx >= 0 && xx < width && yy >= 0 && yy < height)
+                    uint* pixel = (uint*)(bitmapData.Scan0 + (int)x * bytesPerPixel + (int)y * bitmapData.Stride);
+                    if (x >= 0 && x < width && y >= 0 && y < height)
                     {
                         pixel[0] = 0xff_00_00_00;
                     }
-                }//);
+                }
+                image.UnlockBits(bitmapData);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RasterizeTriangle(this Bitmap image, Vector4[] t, Color color)
+        {
+
+            var width = image.Width;
+            var height = image.Height;
+            if (t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height ||
+                t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height ||
+                t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height ||
+                t[0].Z < 0 || t[0].Z > 1000 || // todo check + refactor
+                t[1].Z < 0 || t[1].Z > 1000 ||
+                t[2].Z < 0 || t[2].Z > 1000) return;
+
+            if (t[0].Y == t[1].Y && t[0].Y == t[2].Y) return; // i dont care about degenerate triangles
+
+            //t.Sort((Vector4 v1, Vector4 v2) => (int)(v1.Y - v2.Y)); // todo maybe buble sort
+            if (t[0].Y > t[1].Y) t[0].Swap(ref t[1]);
+            if (t[0].Y > t[2].Y) t[0].Swap(ref t[2]);
+            if (t[1].Y > t[2].Y) t[1].Swap(ref t[2]);
+
+            var total_height = t[2].Y - t[0].Y;
+            for (int i = 0; i < total_height; i++)
+            {
+                bool second_half = i > t[1].Y - t[0].Y || t[1].Y == t[0].Y;
+                float segment_height = second_half ? t[2].Y - t[1].Y : t[1].Y - t[0].Y;
+                float alpha = i / total_height;
+                float beta = (i - (second_half ? t[1].Y - t[0].Y : 0)) / segment_height; // be careful: with above conditions no division by zero here
+                Vector4 A = t[0] + (t[2] - t[0]) * alpha;
+                Vector4 B = second_half ? t[1] + (t[2] - t[1]) * beta : t[0] + (t[1] - t[0]) * beta;
+                if (A.X > B.X) A.Swap(ref B);
+
+                BitmapData bitmapData = image.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, image.PixelFormat);
+                int bytesPerPixel = Image.GetPixelFormatSize(image.PixelFormat) / 8;
+                unsafe
+                {
+                    for (int j = (int)A.X; j <= B.X; j++)
+                    {
+                        var x = j;
+                        var y = t[0].Y + i;
+                        uint* pixel = (uint*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
+                        if (x >= 0 && x < width && y >= 0 && y < height)
+                        {
+                            pixel[0] = 0xff_00_00_00;
+                        }
+                    }
+                }
                 image.UnlockBits(bitmapData);
             }
         }
@@ -106,40 +158,6 @@ namespace System.Drawing
                 }
             });
             image.UnlockBits(bitmapData);
-        }
-
-        public static void ProcessUsingLockbits(this Bitmap processedBitmap)
-        {
-            BitmapData bitmapData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height), ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
-
-            int bytesPerPixel = Bitmap.GetPixelFormatSize(processedBitmap.PixelFormat) / 8;
-            int byteCount = bitmapData.Stride * processedBitmap.Height;
-            byte[] pixels = new byte[byteCount];
-            IntPtr ptrFirstPixel = bitmapData.Scan0;
-            Marshal.Copy(ptrFirstPixel, pixels, 0, pixels.Length);
-            int heightInPixels = bitmapData.Height;
-            int widthInBytes = bitmapData.Width * bytesPerPixel;
-
-            for (int y = 0; y < heightInPixels; y++)
-            {
-                int currentLine = y * bitmapData.Stride;
-                for (int x = 0; x < widthInBytes; x = x + bytesPerPixel)
-                {
-                    int oldBlue = pixels[currentLine + x];
-                    int oldGreen = pixels[currentLine + x + 1];
-                    int oldRed = pixels[currentLine + x + 2];
-
-                    // calculate new pixel value
-                    pixels[currentLine + x] = (byte)0;
-                    pixels[currentLine + x + 1] = (byte)0;
-                    pixels[currentLine + x + 2] = (byte)0;
-                    pixels[currentLine + x + 3] = (byte)255;
-                }
-            }
-
-            // copy modified bytes back
-            Marshal.Copy(pixels, 0, ptrFirstPixel, pixels.Length);
-            processedBitmap.UnlockBits(bitmapData);
         }
     }
 }

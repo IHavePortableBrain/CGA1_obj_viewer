@@ -1,6 +1,6 @@
 ﻿namespace System.Numerics
 {
-    public static class Vector3Extensions
+    public static class Matrix4x4Extensions
     {
         public static Matrix4x4 CreateRotation(this Vector3 vector, float radian)
         {
