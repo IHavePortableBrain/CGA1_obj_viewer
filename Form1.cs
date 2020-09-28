@@ -39,8 +39,9 @@ namespace lab1
             {
                 pbViewport.Image = _view3d.Redraw();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
             }
             pbViewport.Refresh();
         }

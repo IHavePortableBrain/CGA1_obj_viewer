@@ -66,12 +66,11 @@ namespace lab1.View._3D
                     Vector4.Multiply(
                     _model.Vectors[vis[2]] - _model.Vectors[vis[0]], _model.Vectors[vis[1]] - _model.Vectors[vis[0]]));
                 float intensity = Vector4.Dot(faceNormal, _model.LightDirection);
-                if (intensity > 0)
-                {
-                    var color = System.Drawing.Color.FromArgb(Color.A, (int)(Color.R * intensity), (int)(Color.G * intensity), (int)(Color.B * intensity));  
+                //if (intensity > 0)
+                //{
+                    var color = System.Drawing.Color.FromArgb(Color.A, (byte)(Color.R * intensity), (byte)(Color.G * intensity), (byte)(Color.B * intensity));  
                     _image.RasterizeTriangle(_zBuffer, verticies, color);
-                }
-               
+                //}
             }
             return _image;
         }

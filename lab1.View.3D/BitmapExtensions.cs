@@ -76,16 +76,16 @@ namespace System.Drawing
         {
             var width = image.Width;
             var height = image.Height;
-            if (t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height ||
-                t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height ||
-                t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height ||
-                t[0].Z < 0 || t[0].Z > 1 || // todo check + refactor
-                t[1].Z < 0 || t[1].Z > 1 ||
-                t[2].Z < 0 || t[2].Z > 1) return;
-            //if ((t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height || t[0].Z < 0 || t[0].Z > 1000) && // todo check + refactor
-            //    (t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height || t[1].Z < 0 || t[1].Z > 1000) &&
-            //    (t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height || t[2].Z < 0 || t[2].Z > 1000))
-            //    return;
+            //if (t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height ||
+            //    t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height ||
+            //    t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height ||
+            //    t[0].Z < 0 || t[0].Z > 1 || // todo check + refactor
+            //    t[1].Z < 0 || t[1].Z > 1 ||
+            //    t[2].Z < 0 || t[2].Z > 1) return;
+            if ((t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height || t[0].Z < 0 || t[0].Z > 1000) && // todo check + refactor
+                (t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height || t[1].Z < 0 || t[1].Z > 1000) &&
+                (t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height || t[2].Z < 0 || t[2].Z > 1000))
+                return;
 
             if (t[0].Y == t[1].Y && t[0].Y == t[2].Y) return;
 
@@ -110,6 +110,7 @@ namespace System.Drawing
                 unsafe
                 {
                     // draw horizontal line
+                    if ((A.Z >= 0 && A.Z <= 1) || (B.Z >= 0 && B.Z <= 1))
                     for (int j = (int)A.X; j <= B.X; j++)
                     {
                         var x = j;
@@ -118,7 +119,7 @@ namespace System.Drawing
                         float phi = (float)(x - A.X) / (float)(B.X - A.X + 1);
                         float z = A.Z + (B.Z - A.Z) * phi;
 
-                        if (z < zBuffer[(int)y * image.Width + x] &&  x >= 0 && x < width && y >= 0 && y < height)
+                        if (x >= 0 && x < width && y >= 0 && y < height && z < zBuffer[(int)y * image.Width + x])
                         {
                             zBuffer[(int)y * image.Width + x] = z;
                             int* pixel = (int*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
