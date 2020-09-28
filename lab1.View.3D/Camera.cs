@@ -12,9 +12,9 @@ namespace lab1.View._3D
         public Vector3 Eye;
         public Vector3 Target { get; private set; }
         public Vector3 Up = new Vector3(0, 1, 0);
-        public Vector3 YAxis => Vector3.Normalize(Vector3.Cross(XAxis, ZAxis));
         public Vector3 ZAxis => Vector3.Normalize(-Target); // +Eye 
         public Vector3 XAxis => Vector3.Normalize(Vector3.Cross(ZAxis, Up));
+        public Vector3 YAxis => Vector3.Normalize(Vector3.Cross(XAxis, ZAxis));
 
         private float _yaw; // rad
         public float Yaw { get { return _yaw; } set{ _yaw = value % MaxYaw; UpdateTarget(); } }

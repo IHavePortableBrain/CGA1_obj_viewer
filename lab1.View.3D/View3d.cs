@@ -1,12 +1,9 @@
 ﻿using lab1.World;
 using ObjParser.Types;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 
 namespace lab1.View._3D
 {
@@ -22,7 +19,7 @@ namespace lab1.View._3D
         private Bitmap _image;
         private float[] _zBuffer;
 
-        public Pen Pen = new Pen(System.Drawing.Color.Black);
+        public System.Drawing.Color Color = System.Drawing.Color.White;
         public Camera Cam = new Camera();
 
         private Matrix4x4 ToObserverSpaceTransform => //Matrix4x4.CreateLookAt(_eye, _target, _zAxis);
@@ -63,8 +60,18 @@ namespace lab1.View._3D
             TransformToViewport(vectors);
             foreach (var face in _model.Faces)
             {
-                var verticies = face.VertexIndicies.Select(vi => vectors[vi]);
-                _image.RasterizeTriangle(_zBuffer, verticies.ToArray(), System.Drawing.Color.Black);
+                var vis = face.VertexIndicies;
+                var verticies = vis.Select(vi => vectors[vi]).ToArray();
+                Vector4 faceNormal = Vector4.Normalize(
+                    Vector4.Multiply(
+                    _model.Vectors[vis[2]] - _model.Vectors[vis[0]], _model.Vectors[vis[1]] - _model.Vectors[vis[0]]));
+                float intensity = Vector4.Dot(faceNormal, _model.LightDirection);
+                if (intensity > 0)
+                {
+                    var color = System.Drawing.Color.FromArgb(Color.A, (int)(Color.R * intensity), (int)(Color.G * intensity), (int)(Color.B * intensity));  
+                    _image.RasterizeTriangle(_zBuffer, verticies, color);
+                }
+               
             }
             return _image;
         }

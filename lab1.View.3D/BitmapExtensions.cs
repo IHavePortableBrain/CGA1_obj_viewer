@@ -79,11 +79,15 @@ namespace System.Drawing
             if (t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height ||
                 t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height ||
                 t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height ||
-                t[0].Z < 0 || t[0].Z > 1000 || // todo check + refactor
-                t[1].Z < 0 || t[1].Z > 1000 ||
-                t[2].Z < 0 || t[2].Z > 1000) return;
+                t[0].Z < 0 || t[0].Z > 1 || // todo check + refactor
+                t[1].Z < 0 || t[1].Z > 1 ||
+                t[2].Z < 0 || t[2].Z > 1) return;
+            //if ((t[0].X < 0 || t[0].X >= width || t[0].Y < 0 || t[0].Y >= height || t[0].Z < 0 || t[0].Z > 1000) && // todo check + refactor
+            //    (t[1].X < 0 || t[1].X >= width || t[1].Y < 0 || t[1].Y >= height || t[1].Z < 0 || t[1].Z > 1000) &&
+            //    (t[2].X < 0 || t[2].X >= width || t[2].Y < 0 || t[2].Y >= height || t[2].Z < 0 || t[2].Z > 1000))
+            //    return;
 
-            if (t[0].Y == t[1].Y && t[0].Y == t[2].Y) return; // i dont care about degenerate triangles
+            if (t[0].Y == t[1].Y && t[0].Y == t[2].Y) return;
 
             //t.Sort((Vector4 v1, Vector4 v2) => (int)(v1.Y - v2.Y)); // todo maybe buble sort
             if (t[0].Y > t[1].Y) t[0].Swap(ref t[1]);
@@ -117,8 +121,8 @@ namespace System.Drawing
                         if (z < zBuffer[(int)y * image.Width + x] &&  x >= 0 && x < width && y >= 0 && y < height)
                         {
                             zBuffer[(int)y * image.Width + x] = z;
-                            uint* pixel = (uint*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
-                            pixel[0] = 0xff_00_00_00;
+                            int* pixel = (int*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
+                            pixel[0] = color.ToArgb();
                         }
                     }
                 }
