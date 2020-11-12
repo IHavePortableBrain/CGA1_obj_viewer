@@ -14,7 +14,7 @@ namespace lab1.World
         public readonly Obj Obj; // IModelSource
         public Matrix4x4 MoveTranslation;
         private Matrix4x4 ModelTransform => MoveTranslation * Matrix4x4.CreateScale(Scale); //SRT - scale rotate then translate  Matrix4x4.CreateFromQuaternion(Quaternion) *
-        public Vector4 LightDirection = Vector4.Normalize(new Vector4(10, 10, 0, 0));
+        public Vector3 LightDirection = Vector3.Normalize(new Vector3(-1, -1, -1));
         public Vector4[] Vectors = Array.Empty<Vector4>();
         public Face[] Faces = Array.Empty<Face>();
 

@@ -62,10 +62,14 @@ namespace lab1.View._3D
             {
                 var vis = face.VertexIndicies;
                 var verticies = vis.Select(vi => vectors[vi]).ToArray();
-                Vector4 faceNormal = Vector4.Normalize(
-                    Vector4.Multiply(
-                    _model.Vectors[vis[2]] - _model.Vectors[vis[0]], _model.Vectors[vis[1]] - _model.Vectors[vis[0]]));
-                float intensity = Vector4.Dot(faceNormal, _model.LightDirection);
+                var v = _model.Vectors[vis[0]];
+                Vector3 v0 = new Vector3(v.X, v.Y, v.Z);
+                v = _model.Vectors[vis[1]];
+                Vector3 v1 = new Vector3(v.X, v.Y, v.Z);
+                v = _model.Vectors[vis[2]];
+                Vector3 v2 = new Vector3(v.X, v.Y, v.Z);
+                Vector3 faceNormal = Vector3.Normalize(Vector3.Cross(v2 - v0, v1 - v0));
+                float intensity = Vector3.Dot(faceNormal, _model.LightDirection); //Dot
                 //if (intensity > 0)
                 //{
                     var color = System.Drawing.Color.FromArgb(Color.A, (byte)(Color.R * intensity), (byte)(Color.G * intensity), (byte)(Color.B * intensity));  

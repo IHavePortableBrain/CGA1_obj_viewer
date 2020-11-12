@@ -95,7 +95,7 @@ namespace System.Drawing
             if (t[1].Y > t[2].Y) t[1].Swap(ref t[2]);
 
             var total_height = t[2].Y - t[0].Y;
-            for (int i = 0; i < total_height; i++)
+            for (int i = 0; i < total_height; i++) // if triangle too small do not Parallel. Parallel tiangles can be.
             {
                 bool second_half = i > t[1].Y - t[0].Y || t[1].Y == t[0].Y;
                 float segment_height = second_half ? t[2].Y - t[1].Y : t[1].Y - t[0].Y;
@@ -119,10 +119,10 @@ namespace System.Drawing
                         float phi = (float)(x - A.X) / (float)(B.X - A.X + 1);
                         float z = A.Z + (B.Z - A.Z) * phi;
 
-                        if (x >= 0 && x < width && y >= 0 && y < height && z < zBuffer[(int)y * image.Width + x])
+                        if (x >= 0 && x < width && y >= 0 && y < height && z < zBuffer[(int)y * width + x])
                         {
-                            zBuffer[(int)y * image.Width + x] = z;
-                            int* pixel = (int*)(bitmapData.Scan0 + x * bytesPerPixel + (int)y * bitmapData.Stride);
+                            zBuffer[(int)Math.Ceiling(y) * width + x] = z;
+                            int* pixel = (int*)(bitmapData.Scan0 + x * bytesPerPixel + (int)Math.Ceiling(y) * bitmapData.Stride);
                             pixel[0] = color.ToArgb();
                         }
                     }
